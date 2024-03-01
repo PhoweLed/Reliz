@@ -1,0 +1,88 @@
+from pygame.sprite import Group
+from pygame import * 
+from random import randint 
+#звук 
+mixer.init() 
+clock= time.Clock()
+class GameSprite(sprite.Sprite): 
+ 
+    def __init__(self, player_image , player_x , player_y, size_x, syze_y, player_speed): 
+        sprite.Sprite.__init__(self) 
+        self.image = transform.scale(image.load(player_image),(50 , 50))  
+        self.speed = player_speed 
+        self.rect = self.image.get_rect() 
+        self.rect.x = player_x 
+        self.rect.y = player_y 
+    def reset (self): 
+        window.blit(self.image,(self.rect.x , self.rect.y)) 
+
+class Player(GameSprite): 
+    def update(self): 
+        keys_pressed = key.get_pressed() 
+        if keys_pressed [K_LEFT] and self.rect.x > 5 : 
+            self.rect.x -= self.speed   
+ 
+            keys_pressed = key.get_pressed() 
+        if keys_pressed [K_RIGHT] and self.rect.x < win_width - 80 : 
+            self.rect.x += self.speed 
+ 
+
+ 
+
+class Enemy(GameSprite): 
+    def update(self): 
+        self.rect.y += self.speed 
+        global lost  
+ 
+        if self.rect.y > win_height: 
+            self.rect.x = randint(80, win_width - 80) 
+            self.rect.y = 0 
+            lost = lost + 1 
+
+background = 'background.jpg'
+dino_img = 'dino.png'
+Cactus_img = 'Cactus.jpg'
+
+win_width = 700
+win_height = 500
+window = display.set_mode((win_width, win_height))
+display.set_caption("Dino game") 
+background = transform.scale(image.load("background.jpg"), (win_width, win_height)) 
+run = True
+finish = False
+jumping = False
+jump_height = 10
+jump_count = 10 
+dino = Player(dino_img,5, win_height - 100, 80, 100, 20)
+
+while run: 
+ 
+    #подія натискання на кнопку закрити 
+     
+    for e in event.get(): 
+        if e.type == QUIT: 
+            run = False 
+        elif e.type ==  KEYDOWN:
+            if e.key == QUIT:
+                run = False
+    if not finish:
+        window.blit(background,(0,0))
+    keys = key.get_pressed() 
+
+
+    if not jumping:
+            if keys[K_SPACE]:
+                jumping = True
+
+            else:
+                if jump_count >= -jump_height:
+                    neg = 1
+                    if jump_count < 0:
+                        neg = -1
+                    dino.rect.y -= (jump_count ** 2) * 0.5 * neg
+                    jump_count -= 1
+                else:
+                    jumping = False
+                    jump_count = jump_height
+    display.update()
+    clock.tick(50)
